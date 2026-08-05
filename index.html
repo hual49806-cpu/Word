@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>逆舟家教｜字的小旅行精靈射擊</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font-family:"Microsoft JhengHei",sans-serif;background:#0d1730;color:#fff}
+#game{position:relative;width:100%;height:100%;min-height:540px;background:linear-gradient(#101a3b 0 58%,#18294b 59% 100%);overflow:hidden}
+#game:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 15%,#6c56bd55 0 2px,transparent 3px),radial-gradient(circle at 76% 23%,#72d8ff66 0 2px,transparent 3px);background-size:90px 80px}
+.top{position:absolute;z-index:10;left:10px;right:10px;top:8px;display:flex;justify-content:space-between;gap:8px}
+.badge{background:#fffdf2;color:#293252;padding:7px 11px;border-radius:14px;font-weight:900;box-shadow:0 4px 12px #0004}
+.qbox{position:absolute;z-index:9;top:56px;left:50%;transform:translateX(-50%);width:min(92%,760px);background:#fff8e9;color:#2e3450;border-radius:20px;padding:12px;text-align:center;border:3px solid #fff;box-shadow:0 8px 20px #0005}
+#question{font-size:clamp(20px,4vw,31px);font-weight:900}#waveLabel{font-size:14px;color:#6a7089;font-weight:800}
+#arena{position:absolute;z-index:3;left:0;right:0;top:145px;bottom:100px}
+.enemy{position:absolute;width:132px;text-align:center;filter:drop-shadow(0 8px 7px #0008)}
+.sprite{width:112px;height:112px;object-fit:contain;display:block;margin:auto}
+.answer{background:#fff;color:#26304e;border:3px solid #7b6ce1;border-radius:14px;padding:5px 7px;font-weight:900;font-size:15px;min-height:34px}
+.enemy.dead{pointer-events:none}.enemy.dead .answer{opacity:0}
+#player{position:absolute;z-index:5;bottom:67px;left:50%;transform:translateX(-50%);font-size:54px;filter:drop-shadow(0 6px 5px #0008)}
+.bullet{position:absolute;width:10px;height:25px;border-radius:8px;background:linear-gradient(#fff,#6fe7ff,#746cff);box-shadow:0 0 14px #6fe7ff}
+.controls{position:absolute;z-index:12;left:12px;right:12px;bottom:10px;display:flex;justify-content:space-between;pointer-events:none}
+.grp{display:flex;gap:10px;pointer-events:auto}button{border:0;font:inherit;font-weight:900}.ctrl{width:58px;height:58px;border-radius:50%;font-size:25px;background:#fff;color:#364276;box-shadow:0 5px 12px #0006;touch-action:none}.shoot{width:72px;height:72px;background:linear-gradient(#ffda69,#ff8f57);color:#713000}
+.overlay{position:absolute;z-index:30;inset:0;background:#0b112bcc;display:flex;align-items:center;justify-content:center;padding:18px}
+.panel{width:min(92%,600px);background:#fff8e9;color:#28304e;border:5px solid white;border-radius:27px;padding:24px;text-align:center}.panel h1{color:#5145a6;margin:0 0 8px}.main{padding:12px 24px;border-radius:16px;background:#5e55c7;color:white;font-size:20px;box-shadow:0 5px 0 #3c358b}
+.toast{position:absolute;z-index:20;left:50%;top:50%;transform:translate(-50%,-50%);background:#171e3ddd;padding:14px 22px;border-radius:16px;font-size:22px;font-weight:900;opacity:0;transition:.2s}.toast.show{opacity:1}
+@media(max-width:600px){.enemy{width:104px}.sprite{width:92px;height:92px}.answer{font-size:13px}}
+</style></head><body>
+<div id="game">
+<div class="top"><div class="badge">逆舟家教｜字的小旅行</div><div style="display:flex;gap:6px"><div class="badge">❤️ <span id="hp">3</span></div><div class="badge">⭐ <span id="score">0</span></div></div></div>
+<div class="qbox"><div id="waveLabel"></div><div id="question"></div></div>
+<div id="arena"></div><div id="player">🚀</div>
+<div class="controls"><div class="grp"><button class="ctrl" id="left">◀</button><button class="ctrl" id="right">▶</button></div><div class="grp"><button class="ctrl shoot" id="shoot">發射</button></div></div>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="start"><div class="panel"><h1>精靈波次射擊</h1><p>第一波是小殭屍，第二波是幽靈精靈。<br>同一波怪物外觀相同，射中正確答案才會死亡。</p><button class="main" id="startBtn">開始遊戲</button></div></div>
+<div class="overlay" id="end" style="display:none"><div class="panel"><h1 id="endTitle"></h1><p id="endText"></p><button class="main" id="again">重新挑戰</button></div></div>
+</div>
+<script>
+const ASSETS={"zombie": {"idle": ["assets/zombie/idle/0.png", "assets/zombie/idle/1.png", "assets/zombie/idle/2.png", "assets/zombie/idle/3.png", "assets/zombie/idle/4.png", "assets/zombie/idle/5.png", "assets/zombie/idle/6.png", "assets/zombie/idle/7.png"], "walk": ["assets/zombie/walk/0.png", "assets/zombie/walk/1.png", "assets/zombie/walk/2.png", "assets/zombie/walk/3.png", "assets/zombie/walk/4.png", "assets/zombie/walk/5.png", "assets/zombie/walk/6.png", "assets/zombie/walk/7.png"], "hurt": ["assets/zombie/hurt/0.png", "assets/zombie/hurt/1.png", "assets/zombie/hurt/2.png", "assets/zombie/hurt/3.png"], "dead": ["assets/zombie/dead/0.png", "assets/zombie/dead/1.png", "assets/zombie/dead/2.png", "assets/zombie/dead/3.png", "assets/zombie/dead/4.png", "assets/zombie/dead/5.png"]}, "ghost": {"idle": ["assets/ghost/idle/0.png", "assets/ghost/idle/1.png", "assets/ghost/idle/2.png", "assets/ghost/idle/3.png", "assets/ghost/idle/4.png", "assets/ghost/idle/5.png", "assets/ghost/idle/6.png", "assets/ghost/idle/7.png"], "walk": ["assets/ghost/walk/0.png", "assets/ghost/walk/1.png", "assets/ghost/walk/2.png", "assets/ghost/walk/3.png", "assets/ghost/walk/4.png", "assets/ghost/walk/5.png", "assets/ghost/walk/6.png", "assets/ghost/walk/7.png"], "hurt": ["assets/ghost/hurt/0.png", "assets/ghost/hurt/1.png", "assets/ghost/hurt/2.png", "assets/ghost/hurt/3.png"], "dead": ["assets/ghost/dead/0.png", "assets/ghost/dead/1.png", "assets/ghost/dead/2.png", "assets/ghost/dead/3.png", "assets/ghost/dead/4.png", "assets/ghost/dead/5.png"]}};
+const BANK=[["「航行」的意思是什麼？", "船舶或飛機行進", ["慢慢休息", "不見、消失"]], ["「忌妒」最接近哪個意思？", "對別人的優點感到不高興", ["非常喜愛", "完全忘記"]], ["「消失」的意思是什麼？", "不見了", ["變得更大", "開始旅行"]], ["哪一個字是「心部」的字？", "忌", ["舟", "載"]], ["「一葉扁舟」的「扁」讀音是？", "ㄆㄧㄢ", ["ㄅㄧㄢˇ", "ㄆㄧㄢˋ"]], ["哪個詞語使用正確？", "駕駛小船", ["架駛小船", "駕使小船"]], ["「輕舟」中的「舟」是什麼意思？", "船", ["車子", "飛機"]], ["哪一個是疑問句？", "小船要載什麼呢？", ["小船載著心字。", "今天的天氣很好。"]], ["哪一個是陳述句？", "妹妹喜歡跳舞。", ["弟弟寫完了嗎？", "你要去哪裡呢？"]], ["「心」和「亡」組成哪個字？", "忘", ["忙", "芒"]], ["「心」和「己」組成哪個字？", "忌", ["記", "紀"]], ["「心」和「咸」組成哪個字？", "感", ["減", "喊"]], ["「因禍得福」的意思是？", "由壞事得到好結果", ["好事一定變壞", "因幸福而忘記努力"]], ["「塞翁失馬」告訴我們什麼？", "禍福可能互相轉變", ["失去馬一定倒楣", "做事不必努力"]], ["哪一句有誇飾語氣？", "我等了你一萬年！", ["我等了十分鐘。", "我在門口等你。"]], ["「欣賞」的意思是？", "喜愛並觀看", ["責備別人", "完全忽略"]], ["哪個詞語搭配正確？", "欣賞美景", ["欣賞功課", "欣賞雨傘"]], ["課文主旨最接近哪一項？", "文字組合能產生新字與新意思", ["小船一定在雨天航行", "旅客都喜歡坐船"]]];
+const waveTypes=["zombie","ghost","zombie","ghost","zombie","ghost"];
+const waveNames=["小殭屍","幽靈精靈","強化小殭屍","強化幽靈","殭屍隊長","幽靈首領"];
+let wave=0,step=0,hp=3,score=0,qidx=0,running=false,px=50,dir=0,enemies=[],bullets=[],last=0,raf=0;
+const arena=document.getElementById("arena"),player=document.getElementById("player"),q=document.getElementById("question"),wl=document.getElementById("waveLabel");
+const hpE=document.getElementById("hp"),scoreE=document.getElementById("score"),toast=document.getElementById("toast");
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)} let bank=shuffle(BANK);
+function anim(img,frames,loop=true,done=null){clearInterval(img._timer);let i=0;img.src=frames[0];img._timer=setInterval(()=>{i++;if(i>=frames.length){if(loop)i=0;else{clearInterval(img._timer);done&&done();return}}img.src=frames[i]},105)}
+function msg(t){toast.textContent=t;toast.classList.add("show");clearTimeout(msg.t);msg.t=setTimeout(()=>toast.classList.remove("show"),650)}
+function loadQ(){arena.innerHTML="";enemies=[];bullets=[];if(wave>=waveTypes.length)return finish(true);let item=bank[qidx%bank.length],ans=shuffle([item[1],...item[2]]),type=waveTypes[wave];q.textContent=item[0];wl.textContent=`第 ${wave+1} 波｜${waveNames[wave]}｜${step+1} / 3`;[18,50,82].forEach((x,i)=>{let e=document.createElement("div");e.className="enemy";e.style.left=`calc(${x}% - 66px)`;e.style.top=(25+(i%2)*24)+"px";e.dataset.correct=ans[i]===item[1]?"1":"0";e.innerHTML=`<img class="sprite"><div class="answer">${ans[i]}</div>`;arena.appendChild(e);let img=e.querySelector("img");anim(img,ASSETS[type].idle,true);enemies.push({el:e,img,x,alive:true,type})})}
+function shoot(){if(!running)return;let ar=arena.getBoundingClientRect(),pr=player.getBoundingClientRect(),b=document.createElement("div");b.className="bullet";let x=pr.left+pr.width/2-ar.left-5,y=pr.top-ar.top;b.style.left=x+"px";b.style.top=y+"px";arena.appendChild(b);bullets.push({el:b,x,y})}
+function hit(e){if(!e.alive)return;e.alive=false;if(e.el.dataset.correct==="1"){score+=10;scoreE.textContent=score;msg("答對了！");anim(e.img,ASSETS[e.type].hurt,false,()=>anim(e.img,ASSETS[e.type].dead,false,()=>{e.el.classList.add("dead");step++;qidx++;setTimeout(()=>{if(step>=3){step=0;wave++;msg("下一波怪物來襲！")}loadQ()},450)}))}else{e.alive=true;hp--;hpE.textContent=hp;msg("射錯答案！");anim(e.img,ASSETS[e.type].hurt,false,()=>anim(e.img,ASSETS[e.type].idle,true));if(hp<=0)setTimeout(()=>finish(false),500)}}
+function overlap(a,b){return !(a.right<b.left||a.left>b.right||a.bottom<b.top||a.top>b.bottom)}
+function loop(t){if(!running)return;let dt=Math.min((t-last)/1000,.04)||0;last=t;px=Math.max(5,Math.min(95,px+dir*48*dt));player.style.left=px+"%";bullets.forEach(b=>{b.y-=520*dt;b.el.style.top=b.y+"px";if(b.y<-30){b.dead=true;b.el.remove();return}let r=b.el.getBoundingClientRect();for(let e of enemies)if(e.alive&&overlap(r,e.el.getBoundingClientRect())){b.dead=true;b.el.remove();hit(e);break}});bullets=bullets.filter(b=>!b.dead);raf=requestAnimationFrame(loop)}
+function startGame(){document.getElementById("start").style.display="none";document.getElementById("end").style.display="none";wave=0;step=0;hp=3;score=0;qidx=0;px=50;hpE.textContent=3;scoreE.textContent=0;bank=shuffle(BANK);loadQ();running=true;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function finish(win){running=false;cancelAnimationFrame(raf);document.getElementById("end").style.display="flex";document.getElementById("endTitle").textContent=win?"全部波次完成！":"挑戰失敗";document.getElementById("endText").textContent=`本次得分：${score} 分`}
+function hold(el,d){el.onpointerdown=e=>{e.preventDefault();dir=d};el.onpointerup=el.onpointerleave=()=>{if(dir===d)dir=0}}
+hold(document.getElementById("left"),-1);hold(document.getElementById("right"),1);document.getElementById("shoot").onpointerdown=e=>{e.preventDefault();shoot()};
+document.getElementById("startBtn").onclick=startGame;document.getElementById("again").onclick=startGame;
+onkeydown=e=>{if(e.key==="ArrowLeft")dir=-1;if(e.key==="ArrowRight")dir=1;if(e.code==="Space"){e.preventDefault();shoot()}};onkeyup=e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight")dir=0};
+</script></body></html>

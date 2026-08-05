@@ -1,0 +1,74 @@
+{
+  "zombie": {
+    "idle": [
+      "assets/zombie/idle/0.png",
+      "assets/zombie/idle/1.png",
+      "assets/zombie/idle/2.png",
+      "assets/zombie/idle/3.png",
+      "assets/zombie/idle/4.png",
+      "assets/zombie/idle/5.png",
+      "assets/zombie/idle/6.png",
+      "assets/zombie/idle/7.png"
+    ],
+    "walk": [
+      "assets/zombie/walk/0.png",
+      "assets/zombie/walk/1.png",
+      "assets/zombie/walk/2.png",
+      "assets/zombie/walk/3.png",
+      "assets/zombie/walk/4.png",
+      "assets/zombie/walk/5.png",
+      "assets/zombie/walk/6.png",
+      "assets/zombie/walk/7.png"
+    ],
+    "hurt": [
+      "assets/zombie/hurt/0.png",
+      "assets/zombie/hurt/1.png",
+      "assets/zombie/hurt/2.png",
+      "assets/zombie/hurt/3.png"
+    ],
+    "dead": [
+      "assets/zombie/dead/0.png",
+      "assets/zombie/dead/1.png",
+      "assets/zombie/dead/2.png",
+      "assets/zombie/dead/3.png",
+      "assets/zombie/dead/4.png",
+      "assets/zombie/dead/5.png"
+    ]
+  },
+  "ghost": {
+    "idle": [
+      "assets/ghost/idle/0.png",
+      "assets/ghost/idle/1.png",
+      "assets/ghost/idle/2.png",
+      "assets/ghost/idle/3.png",
+      "assets/ghost/idle/4.png",
+      "assets/ghost/idle/5.png",
+      "assets/ghost/idle/6.png",
+      "assets/ghost/idle/7.png"
+    ],
+    "walk": [
+      "assets/ghost/walk/0.png",
+      "assets/ghost/walk/1.png",
+      "assets/ghost/walk/2.png",
+      "assets/ghost/walk/3.png",
+      "assets/ghost/walk/4.png",
+      "assets/ghost/walk/5.png",
+      "assets/ghost/walk/6.png",
+      "assets/ghost/walk/7.png"
+    ],
+    "hurt": [
+      "assets/ghost/hurt/0.png",
+      "assets/ghost/hurt/1.png",
+      "assets/ghost/hurt/2.png",
+      "assets/ghost/hurt/3.png"
+    ],
+    "dead": [
+      "assets/ghost/dead/0.png",
+      "assets/ghost/dead/1.png",
+      "assets/ghost/dead/2.png",
+      "assets/ghost/dead/3.png",
+      "assets/ghost/dead/4.png",
+      "assets/ghost/dead/5.png"
+    ]
+  }
+}
